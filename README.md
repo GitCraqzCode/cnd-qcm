@@ -6,8 +6,8 @@ Maintenance, Université de Toulouse 2), 102 diapositives.
 
 ## Ce qu'elle contient
 
-- **308 questions** couvrant l'intégralité du cours, chacune avec une **explication détaillée**
-- **71 schémas** extraits des diapositives (tableaux méthodes/défauts, A/B/C-Scan, plan
+- **313 questions** couvrant l'intégralité du cours, chacune avec une **explication détaillée**
+- **77 schémas** extraits des diapositives (tableaux méthodes/défauts, A/B/C-Scan, plan
   d'impédance, procédure de ressuage, courbes d'émissivité…)
 - **Fiches de cours** complètes, chapitre par chapitre : définitions, tableaux, formules,
   et une fiche **avantages / inconvénients méthode par méthode**
@@ -17,10 +17,10 @@ Maintenance, Université de Toulouse 2), 102 diapositives.
 | # | Chapitre | Questions |
 |---|----------|-----------|
 | 1 | Introduction & défauts | 55 |
-| 2 | Ressuage | 33 |
-| 3 | Ultrasons | 51 |
+| 2 | Ressuage | 34 |
+| 3 | Ultrasons | 54 |
 | 4 | Magnétoscopie | 40 |
-| 5 | Courants de Foucault | 33 |
+| 5 | Courants de Foucault | 34 |
 | 6 | Thermographie infrarouge | 48 |
 | 7 | Synthèse & comparaison | 48 |
 
@@ -28,16 +28,26 @@ Maintenance, Université de Toulouse 2), 102 diapositives.
 
 Choix unique · choix multiples · vrai/faux · **associations** (relier défaut ↔ origine,
 méthode ↔ principe) · **remise en ordre** (procédures) · **placement d'étiquettes sur un
-schéma** (annoter la figure des défauts de soudure) · questions sur les **schémas** du cours
+schéma** (6 exercices : défauts de soudure, procédure de ressuage, A/B/C-Scan, capteur
+ultrasons, loi de Snell, plan d'impédance normé — les légendes sont effacées de la figure
+originale et il faut les replacer, avec des intrus) · questions sur les **schémas** du cours
 · reconnaissance de **formules** (identifier la bonne relation, ce que représente chaque
 symbole, comment varie une grandeur).
 
 ## Les trois modes
 
 - **🎓 Apprentissage** — correction et explication immédiates après chaque question.
-- **⏱️ Examen blanc** — chronomètre, note sur 20, correction complète à la fin.
+- **⏱️ Examen blanc** — chronomètre, **barème négatif configurable** (sans pénalité, −⅓ ou
+  −½ par erreur) avec bouton **« je ne sais pas »** (zéro point mais zéro pénalité), note
+  sur 20 et correction complète à la fin.
 - **🔁 Révision intelligente** — répétition espacée (système de Leitner à 6 boîtes) : les
   questions ratées reviennent vite, les acquises s'espacent jusqu'à 40 jours.
+
+## Plan de révision
+
+Un onglet **Plan** propose un programme **4 jours × 1 h**, découpé en étapes de 8 à 30 minutes
+(fiches → apprentissage → examen blanc), chacune lançable en un clic et cochée automatiquement
+quand elle est terminée.
 
 ## Gamification
 
@@ -58,10 +68,10 @@ Interface responsive (téléphone et ordinateur), thème sombre et thème clair.
 ```
 index.html          interface
 css/style.css       thème sombre / clair
-js/questions.js     les 308 questions
+js/questions.js     les 313 questions
 js/course.js        les fiches de cours
 js/app.js           moteur (sessions, XP, répétition espacée, stats)
-assets/img/         70 schémas extraits du PDF du cours
+assets/img/         77 schémas extraits du PDF du cours
 ```
 
 Raccourcis clavier : `1`–`9` pour répondre, `Entrée` pour valider ou continuer.

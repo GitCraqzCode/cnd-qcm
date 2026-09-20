@@ -33,7 +33,7 @@ const BADGES = [
 
 /* ── État persistant ───────────────────────────────────── */
 let S = load();
-function blank(){ return {xp:0, q:{}, badges:[], sessions:[], revCount:0, day:{last:null,streak:0}, snd:true, theme:'dark'}; }
+function blank(){ return {xp:0, q:{}, badges:[], sessions:[], revCount:0, day:{last:null,streak:0}, snd:true, theme:'dark', plan:{}}; }
 function load(){ try{ const o=JSON.parse(localStorage.getItem(KEY)); return o&&o.q? Object.assign(blank(),o) : blank(); }catch(e){ return blank(); } }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 function qs(id){ return S.q[id] || (S.q[id]={seen:0,ok:0,ko:0,box:0,due:0,lastKo:false}); }
@@ -198,13 +198,14 @@ function renderHome(){
 }
 
 /* ── Écran de configuration ────────────────────────────── */
-let cfg = {mode:'exam', chaps:[], count:20, timer:true, diff:0};
+let cfg = {mode:'exam', chaps:[], count:20, timer:true, diff:0, malus:1/3};
 function openSetup(mode, chaps){
   cfg.mode=mode;
   cfg.chaps = chaps && chaps.length? chaps.slice() : CHAPTERS.map(c=>c.id);
   cfg.count = mode==='learn'? 15 : 20;
   cfg.timer = mode==='exam';
   cfg.diff  = 0;
+  cfg.malus = mode==='exam'? 1/3 : 0;
   const M={learn:['🎓 Apprentissage','Correction et explication après chaque question.'],
            exam:['⏱️ Examen blanc','Chrono, note sur 20, correction à la fin.'],
            review:['🔁 Révision intelligente','Les questions que tu dois revoir en priorité.']}[mode];
@@ -233,6 +234,11 @@ function openSetup(mode, chaps){
   [['Avec chrono',true],['Sans chrono',false]].forEach(([l,v])=>{
     const b=el('button','chip',l); b.dataset.t=v;
     b.onclick=()=>{ sndClick(); cfg.timer=v; drawSetup(); }; tc.appendChild(b);
+  });
+  const mc=$('#setMalus'); mc.innerHTML='';
+  [['Sans pénalité',0],['− ⅓ par erreur',1/3],['− ½ par erreur',0.5]].forEach(([l,v])=>{
+    const b=el('button','chip',l); b.dataset.m=v;
+    b.onclick=()=>{ sndClick(); cfg.malus=v; drawSetup(); }; mc.appendChild(b);
   });
   const dc=$('#setDiff'); dc.innerHTML='';
   [['Toutes',0],['⭐ Bases',1],['⭐⭐ Intermédiaire',2],['⭐⭐⭐ Difficile',3]].forEach(([l,v])=>{
@@ -263,6 +269,9 @@ function drawSetup(){
   $$('#setCount .chip').forEach(b=>b.classList.toggle('on', (b.dataset.n==='Tout'?9999:+b.dataset.n)===cfg.count));
   $$('#setTimer .chip').forEach(b=>b.classList.toggle('on', (b.dataset.t==='true')===cfg.timer));
   $$('#setDiff .chip').forEach(b=>b.classList.toggle('on', +b.dataset.d===cfg.diff));
+  $$('#setMalus .chip').forEach(b=>b.classList.toggle('on', Math.abs(+b.dataset.m-cfg.malus)<1e-6));
+  const showX = cfg.mode==='exam'? '' : 'none';
+  $('#setMalus').style.display=showX; $('#lblMalus').style.display=showX;
   $('#setTimer').parentNode.querySelectorAll('.lbl')[2].style.display = cfg.mode==='exam'?'':'none';
   $('#setTimer').style.display = cfg.mode==='exam'?'':'none';
   const n=poolFor().length;
@@ -277,12 +286,13 @@ function drawSetup(){
 let SES=null;
 function startSession(mode, chaps, count, opts={}){
   const old=cfg;
-  cfg={mode, chaps:chaps||CHAPTERS.map(c=>c.id), count:count||20, timer:opts.timer!==false&&mode==='exam', diff:opts.diff||0};
+  cfg={mode, chaps:chaps||CHAPTERS.map(c=>c.id), count:count||20, timer:opts.timer!==false&&mode==='exam',
+       diff:opts.diff||0, malus: opts.malus!==undefined? opts.malus : (mode==='exam'? 1/3 : 0)};
   let pool = opts.pool || poolFor();
   if(!pool.length){ toast('Aucune question disponible.'); cfg=old; return; }
   if(mode!=='review') pool=shuffle(pool);
   pool=pool.slice(0, Math.min(cfg.count, pool.length));
-  SES={mode, list:pool, i:0, answers:[], combo:0, maxCombo:0, xp:0,
+  SES={mode, list:pool, i:0, answers:[], combo:0, maxCombo:0, xp:0, step:opts.step||null,
        t0:Date.now(), limit: cfg.timer? pool.length*45 : 0, tick:null};
   touchDay();
   if(SES.limit){ $('#qTimer').style.display=''; startTimer(); } else $('#qTimer').style.display='none';
@@ -322,9 +332,15 @@ function renderQ(){
   ({qcm:rQcm, vf:rVf, multi:rMulti, match:rMatch, order:rOrder, label:rLabel})[q.t](card,q);
   card.appendChild(el('div','btnrow',''));
   const row=card.querySelector('.btnrow');
-  const bv=el('button','btn full','Valider'); bv.id='btnVal'; bv.disabled = q.t!=='order'; bv.onclick=validate;
+  const bv=el('button','btn full','Valider'); bv.id='btnVal'; bv.disabled = q.t!=='order'; bv.onclick=()=>validate();
   row.appendChild(bv);
   if(q.t==='qcm'||q.t==='vf') bv.style.display='none';
+  if(SES.mode==='exam' && cfg.malus>0){
+    const bs=el('button','btn ghost','🤷 Je ne sais pas'); bs.id='btnSkip';
+    bs.title='Aucun point, mais aucune pénalité';
+    bs.onclick=()=>validate(true); row.appendChild(bs);
+    bv.style.flex='2';
+  }
 }
 function rQcm(card,q){
   const idx=shuffle(q.o.map((_,i)=>i)); CUR.map=idx;
@@ -434,7 +450,10 @@ function drawOrder(){
 function rLabel(card,q){
   card.appendChild(el('p','','<small style="color:var(--txt3)">Touche une étiquette, puis la pastille correspondante sur le schéma.</small>'));
   const box=el('div','lbimg');
-  const inner=el('div','lbinner',`<img src="assets/img/${q.i}.jpg" alt="Schéma à annoter">`);
+  const D=(typeof LABELDIM!=='undefined' && LABELDIM[q.i]) || null;
+  const inner=el('div','lbinner',
+    `<img src="assets/img/${q.i}.jpg" alt="Schéma à annoter"${D?` width="${D[0]}" height="${D[1]}"`:''}>`);
+  if(D) inner.style.aspectRatio = D[0]+' / '+D[1];
   q.sp.forEach((s,k)=>{
     const p=el('button','pin', String(k+1));
     p.style.left=s.x+'%'; p.style.top=s.y+'%'; p.dataset.p=k;
@@ -493,9 +512,9 @@ function isCorrect(){
   if(q.t==='label') return q.sp.every((s,k)=>CUR.words[CUR.place[k]]===s.a);
   return false;
 }
-function validate(){
+function validate(skipped){
   if(CUR.answered) return;
-  const q=CUR.q, good=isCorrect();
+  const q=CUR.q, good = skipped? false : isCorrect();
   CUR.answered=true;
 
   const r=qs(q.id); r.seen++;
@@ -509,7 +528,7 @@ function validate(){
 
   let gain=0;
   if(good){ gain = (SES.mode==='review'?7:10) + Math.min(SES.combo-1,5)*2; SES.xp+=gain; addXP(gain); }
-  SES.answers.push({id:q.id, good, gain});
+  SES.answers.push({id:q.id, good, gain, skipped:!!skipped});
 
   // en examen : aucun retour visuel, on enchaîne directement
   if(SES.mode==='exam'){ sndClick(); save(); nextQ(); return; }
@@ -588,8 +607,14 @@ function nextQ(){
 function finish(){
   if(SES.tick) clearInterval(SES.tick);
   const done=SES.answers.length, good=SES.answers.filter(a=>a.good).length;
-  const p=pct(good,done||1), note=done? (good/done*20):0;
-  S.sessions.unshift({d:Date.now(), mode:SES.mode, good, total:done, chaps:cfg.chaps.slice()});
+  const skipped=SES.answers.filter(a=>a.skipped).length;
+  const faux=done-good-skipped;
+  const malus=(SES.mode==='exam')? (cfg.malus||0) : 0;
+  const p=pct(good,done||1);
+  const brut=done? (good/done*20):0;
+  const note=done? Math.max(0,(good-faux*malus)/done*20):0;
+  S.sessions.unshift({d:Date.now(), mode:SES.mode, good, total:done, chaps:cfg.chaps.slice(), note:+note.toFixed(1)});
+  if(SES.step){ S.plan[SES.step]=true; }
   S.sessions=S.sessions.slice(0,40); save();
   checkBadges({combo:SES.maxCombo, examNote: SES.mode==='exam'? note:0, examPerfect: SES.mode==='exam'&&done>=10&&good===done});
 
@@ -604,6 +629,8 @@ function finish(){
       <div><div class="val" style="color:${col}">${p}%</div><div class="sub">${good} / ${done}</div></div>
     </div>
     <div class="note">${verdicts[0]} Note : ${note.toFixed(1)} / 20</div>
+    ${malus? `<div class="verdict" style="font-size:.84rem">${good} bonne${good>1?'s':''} · ${faux} fausse${faux>1?'s':''} · ${skipped} abstention${skipped>1?'s':''}
+       — barème −${malus===0.5?'½':'⅓'} par erreur${Math.abs(brut-note)>0.05?` (sans pénalité : ${brut.toFixed(1)}/20)`:''}</div>`:''}
     <div class="verdict">${verdicts[1]}</div>
     <div class="gain">✨ +${SES.xp} XP${SES.maxCombo>=3? ' · 🔥 meilleure série : '+SES.maxCombo:''}</div>`;
   if(p>=80) setTimeout(()=>confetti(150),250);
@@ -612,7 +639,7 @@ function finish(){
   SES.answers.forEach((a,k)=>{
     const q=QBY[a.id];
     const d=el('div','rev'+(a.good?'':' open'));
-    d.innerHTML=`<div class="rh"><span class="ic">${a.good?'✅':'❌'}</span>
+    d.innerHTML=`<div class="rh"><span class="ic">${a.good?'✅':(a.skipped?'⊘':'❌')}</span>
         <span><b>${k+1}.</b> ${q.q}</span></div>
       <div class="rb">${goodAnswerHTML(q)}<div style="margin-top:9px">${q.e}</div></div>`;
     d.querySelector('.rh').onclick=()=>d.classList.toggle('open');
@@ -622,7 +649,7 @@ function finish(){
   $('#resAgain').style.display = wrong.length? '' : 'none';
   $('#resAgain').onclick=()=>{ startSession(SES.mode==='exam'?'learn':SES.mode, cfg.chaps, wrong.length,
       {pool: wrong.map(a=>QBY[a.id])}); };
-  show('result'); renderHome(); renderStats();
+  show('result'); renderHome(); renderStats(); renderPlan();
 }
 function goodAnswerHTML(q){
   if(q.t==='qcm') return '<b style="color:var(--ok)">Réponse : </b>'+q.o[q.a];
@@ -659,6 +686,95 @@ function renderCourse(){
     a.querySelector('.ah').onclick=()=>{ a.classList.toggle('open'); sndClick(); };
     box.appendChild(a);
   });
+}
+
+
+/* ── Plan de révision 4 jours × 1 h ────────────────────── */
+const PLAN = [
+ {t:"Les bases et le ressuage", ic:'🔍', steps:[
+   {id:'d1a', m:10, l:"Lire les fiches des chapitres 1 et 2",        act:{k:'course', c:['c1','c2']}},
+   {id:'d1b', m:20, l:"Apprentissage — chapitre 1 (30 questions)",   act:{k:'learn', c:['c1'], n:30}},
+   {id:'d1c', m:17, l:"Apprentissage — chapitre 2 (25 questions)",   act:{k:'learn', c:['c2'], n:25}},
+   {id:'d1d', m:13, l:"Examen blanc — chapitres 1 et 2 (15 questions)", act:{k:'exam', c:['c1','c2'], n:15}} ]},
+ {t:"Ultrasons", ic:'📡', steps:[
+   {id:'d2a', m:8,  l:"Révision intelligente — ce qui est dû",       act:{k:'review', n:15}},
+   {id:'d2b', m:8,  l:"Lire la fiche du chapitre 3",                 act:{k:'course', c:['c3']}},
+   {id:'d2c', m:29, l:"Apprentissage — chapitre 3 (40 questions)",   act:{k:'learn', c:['c3'], n:40}},
+   {id:'d2d', m:13, l:"Examen blanc — chapitre 3 (15 questions)",    act:{k:'exam', c:['c3'], n:15}} ]},
+ {t:"Magnétoscopie et courants de Foucault", ic:'🧲', steps:[
+   {id:'d3a', m:8,  l:"Révision intelligente — ce qui est dû",       act:{k:'review', n:15}},
+   {id:'d3b', m:8,  l:"Lire les fiches des chapitres 4 et 5",        act:{k:'course', c:['c4','c5']}},
+   {id:'d3c', m:20, l:"Apprentissage — chapitre 4 (30 questions)",   act:{k:'learn', c:['c4'], n:30}},
+   {id:'d3d', m:17, l:"Apprentissage — chapitre 5 (25 questions)",   act:{k:'learn', c:['c5'], n:25}},
+   {id:'d3e', m:7,  l:"Examen blanc — chapitres 4 et 5 (10 questions)", act:{k:'exam', c:['c4','c5'], n:10}} ]},
+ {t:"Thermographie, synthèse et examen général", ic:'🌡️', steps:[
+   {id:'d4a', m:8,  l:"Révision intelligente — ce qui est dû",       act:{k:'review', n:15}},
+   {id:'d4b', m:8,  l:"Lire les fiches des chapitres 6 et 7 (avantages / inconvénients)", act:{k:'course', c:['c6','c7']}},
+   {id:'d4c', m:20, l:"Apprentissage — chapitre 6 (30 questions)",   act:{k:'learn', c:['c6'], n:30}},
+   {id:'d4d', m:13, l:"Apprentissage — chapitre 7 (20 questions)",   act:{k:'learn', c:['c7'], n:20}},
+   {id:'d4e', m:11, l:"Examen blanc général (15 questions)",         act:{k:'exam', c:CHAPTERS.map(c=>c.id), n:15}} ]}
+];
+function planSteps(){ return PLAN.flatMap(d=>d.steps); }
+function planDone(id){ return !!S.plan[id]; }
+function runStep(st){
+  sndClick();
+  const a=st.act;
+  if(a.k==='course'){
+    S.plan[st.id]=true; save(); renderPlan();
+    show('course');
+    $$('#courseList .acc').forEach((el2,i)=>el2.classList.toggle('open', a.c.includes(CHAPTERS[i].id)));
+    const first=$$('#courseList .acc')[CHAPTERS.findIndex(c=>c.id===a.c[0])];
+    if(first) setTimeout(()=>first.scrollIntoView({behavior:'smooth',block:'start'}),60);
+    return;
+  }
+  if(a.k==='review'){
+    const pool=poolReview();
+    if(!pool.length){ toast('Rien à réviser pour l\u2019instant — enchaîne sur l\u2019étape suivante 🙂');
+      S.plan[st.id]=true; save(); renderPlan(); return; }
+    startSession('review', CHAPTERS.map(c=>c.id), Math.min(a.n,pool.length), {pool, step:st.id});
+    return;
+  }
+  startSession(a.k, a.c, a.n, {timer:a.k==='exam', malus:a.k==='exam'?1/3:0, step:st.id});
+}
+function renderPlan(){
+  const box=$('#planList'); if(!box) return;
+  const all=planSteps(), done=all.filter(s=>planDone(s.id)).length;
+  $('#planPct').textContent=pct(done,all.length)+' %';
+  const cur=PLAN.findIndex(d=>d.steps.some(s=>!planDone(s.id)));
+  $('#planDay').textContent = cur<0? 'Terminé 🎉' : 'Jour '+(cur+1);
+  box.innerHTML='';
+  PLAN.forEach((d,i)=>{
+    const nd=d.steps.filter(s=>planDone(s.id)).length, p=pct(nd,d.steps.length);
+    const mins=d.steps.reduce((s,x)=>s+x.m,0);
+    const acc=el('div','acc'+(i===cur?' open':''));
+    acc.innerHTML=`<button class="ah"><span class="em">${d.ic}</span>
+      <span><span style="display:block">Jour ${i+1} — ${esc(d.t)}</span>
+      <small style="font-weight:400;color:var(--txt3);font-size:.74rem">${mins} min · ${nd}/${d.steps.length} fait${nd>1?'s':''}</small></span>
+      <span style="margin-left:auto;display:flex;align-items:center;gap:9px">
+        <span style="font-family:var(--fm);font-size:.8rem;font-weight:800;color:${p===100?'var(--ok)':'var(--txt3)'}">${p}%</span>
+        <span class="ar">›</span></span></button><div class="ab"></div>`;
+    const body=acc.querySelector('.ab');
+    const tr=el('div','tr2','');
+    tr.style.cssText='height:6px;border-radius:999px;background:var(--surf2);border:1px solid var(--line);overflow:hidden;margin:12px 0 4px';
+    tr.innerHTML=`<i style="display:block;height:100%;width:${p}%;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .6s"></i>`;
+    body.appendChild(tr);
+    d.steps.forEach(st=>{
+      const ok=planDone(st.id);
+      const row=el('div','pstep');
+      row.innerHTML=`<button class="pchk${ok?' on':''}" title="Marquer fait">${ok?'✓':''}</button>
+        <span class="ptxt"><b>${esc(st.l)}</b><small>${st.m} min</small></span>
+        <button class="pgo">${ok?'Refaire':'Commencer'} →</button>`;
+      row.querySelector('.pchk').onclick=()=>{ S.plan[st.id]=!ok; save(); renderPlan(); sndClick(); };
+      row.querySelector('.pgo').onclick=()=>runStep(st);
+      body.appendChild(row);
+    });
+    acc.querySelector('.ah').onclick=()=>{ acc.classList.toggle('open'); sndClick(); };
+    box.appendChild(acc);
+  });
+  const note=el('div','tip');
+  note.innerHTML='<b>La veille au soir, 10 min :</b> bouton <b>❌ Refaire mes erreurs</b> sur l\u2019accueil. C\u2019est le meilleur rapport temps / points gagnés.';
+  note.style.marginTop='14px';
+  box.appendChild(note);
 }
 
 /* ── Statistiques ──────────────────────────────────────── */
@@ -714,7 +830,7 @@ $('#lightbox').onclick=()=>$('#lightbox').classList.remove('on');
 
 /* ── Événements ────────────────────────────────────────── */
 $$('nav button').forEach(b=>b.onclick=()=>{ sndClick(); show(b.dataset.view);
-  if(b.dataset.view==='stats') renderStats(); if(b.dataset.view==='home') renderHome(); });
+  if(b.dataset.view==='stats') renderStats(); if(b.dataset.view==='home') renderHome(); if(b.dataset.view==='plan') renderPlan(); });
 $$('.mode').forEach(b=>b.onclick=()=>{ sndClick();
   const m=b.dataset.mode;
   if(m==='review'){
@@ -738,7 +854,7 @@ $('#btnErr').onclick=()=>{ sndClick();
   startSession('learn', CHAPTERS.map(c=>c.id), Math.min(25,pool.length), {pool:shuffle(pool)});
 };
 $('#setupBack').onclick=()=>{ sndClick(); show('home'); };
-$('#setupGo').onclick=()=>{ sndClick(); startSession(cfg.mode, cfg.chaps, cfg.count, {timer:cfg.timer, diff:cfg.diff}); };
+$('#setupGo').onclick=()=>{ sndClick(); startSession(cfg.mode, cfg.chaps, cfg.count, {timer:cfg.timer, diff:cfg.diff, malus:cfg.malus}); };
 $('#quitBtn').onclick=()=>{
   if(SES && SES.answers.length && !confirm('Quitter la session en cours ? Tes XP sont déjà enregistrés.')) return;
   if(SES && SES.tick) clearInterval(SES.tick);
@@ -767,5 +883,5 @@ document.documentElement.dataset.theme = S.theme;
 // remise à zéro de la série quotidienne si un jour a été sauté
 (function(){ if(S.day.last){ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
   if(S.day.last!==today() && S.day.last!==y) S.day.streak=0; } })();
-renderHeader(); renderHome(); renderCourse(); renderStats();
+renderHeader(); renderHome(); renderCourse(); renderStats(); renderPlan();
 console.log('CND Quiz — '+QUESTIONS.length+' questions chargées.');

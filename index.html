@@ -98,6 +98,9 @@
     <span class="lbl">Difficulté</span>
     <div class="chips" id="setDiff"></div>
 
+    <span class="lbl" id="lblMalus">Barème</span>
+    <div class="chips" id="setMalus"></div>
+
     <div class="btnrow">
       <button class="btn ghost" id="setupBack">← Retour</button>
       <button class="btn" id="setupGo">C'est parti →</button>
@@ -129,6 +132,17 @@
   </div>
 </section>
 
+<!-- ══════════ PLAN ══════════ -->
+<section class="view" id="v-plan">
+  <div class="hero" style="padding:18px">
+    <h1 style="font-size:1.22rem">Plan de révision — 4 jours × 1 h</h1>
+    <p>Chaque jour : un bloc de fiches, de l'apprentissage, et un examen blanc pour vérifier. Coche au fur et à mesure.</p>
+    <div class="kpis"><div class="kpi"><b id="planPct">0 %</b><small>du plan fait</small></div>
+      <div class="kpi"><b id="planDay">Jour 1</b><small>à faire maintenant</small></div></div>
+  </div>
+  <div id="planList" style="margin-top:16px"></div>
+</section>
+
 <!-- ══════════ FICHES ══════════ -->
 <section class="view" id="v-course">
   <div class="hero" style="padding:18px">
@@ -156,6 +170,7 @@
 
 <nav>
   <button data-view="home" class="on"><span>🏠</span>Accueil</button>
+  <button data-view="plan"><span>🗓️</span>Plan</button>
   <button data-view="course"><span>📘</span>Fiches</button>
   <button data-view="stats"><span>📊</span>Stats</button>
 </nav>

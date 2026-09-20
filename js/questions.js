@@ -26,6 +26,10 @@ const CHAPTERS = [
     sub:'Choisir la bonne méthode, normes, pièges classiques de l’examen' }
 ];
 
+
+/* Dimensions natives des schémas à étiqueter (réserve la place avant chargement) */
+const LABELDIM = {"soudure-etiquettes": [1100, 486], "ressuage-etiquettes": [1000, 681], "scans-etiquettes": [1000, 533], "capteur-etiquettes": [1000, 494], "snell-etiquettes": [1000, 817], "conductivite-etiquettes": [1000, 851]};
+
 const QUESTIONS = [
 
 /* ══════════════════════════════════════════════════════════
@@ -1748,6 +1752,60 @@ const QUESTIONS = [
  o:["Parce que chaque méthode a un domaine de validité limité : on croise les méthodes pour couvrir surface, sous-peau et volume, et toutes les orientations de défauts",
     "Pour consommer le budget contrôle","Parce que les normes l'imposent toujours","Parce qu'aucune méthode ne fonctionne seule"],
  a:0,
- e:"Aucune méthode ne voit tout : le ressuage ne voit que le débouchant, la magnétoscopie ajoute le sous-cutané mais seulement sur acier, les ultrasons voient le volume mais dépendent de l'orientation, la radiographie voit les défauts volumiques mais rate les fissures fines. Sur une pièce critique (aube de turbine, soudure d'appareil sous pression), on <b>combine</b> les méthodes dont les points faibles ne se recouvrent pas."}
+ e:"Aucune méthode ne voit tout : le ressuage ne voit que le débouchant, la magnétoscopie ajoute le sous-cutané mais seulement sur acier, les ultrasons voient le volume mais dépendent de l'orientation, la radiographie voit les défauts volumiques mais rate les fissures fines. Sur une pièce critique (aube de turbine, soudure d'appareil sous pression), on <b>combine</b> les méthodes dont les points faibles ne se recouvrent pas."},
+/* ── Placement d'étiquettes (suite) ───────────────────── */
+
+{c:'c2',t:'label',d:2,i:'ressuage-etiquettes',
+ q:"<b>Place chaque opération au bon endroit</b> sur la procédure schématisée du ressuage (diapo 21).",
+ sp:[{x:13.4,y:38.3,a:"Nettoyage de la surface"},
+     {x:40.9,y:40.0,a:"Application du pénétrant"},
+     {x:69.3,y:38.3,a:"Élimination de l'excès de pénétrant"},
+     {x:11.5,y:86.7,a:"Application du révélateur"},
+     {x:40.2,y:86.7,a:"Révélation du défaut"},
+     {x:69.3,y:85.4,a:"Nettoyage final"}],
+ w:["Séchage de la pièce","Observation sous lumière UV"],
+ e:"Lis les vignettes : en <b>3</b> la surface est redevenue propre mais le pénétrant est resté <b>piégé dans la fissure</b> — c'est le rinçage, le geste le plus délicat de la méthode. En <b>5</b> le révélateur a pompé le pénétrant par <b>capillarité</b> et l'indication est <b>plus large que la fissure réelle</b> : c'est ce grossissement qui la rend visible à l'œil. Les deux intrus font bien partie de la procédure complète (NF A 09.120) mais ne sont pas dessinés ici : le <b>séchage</b> s'intercale entre 3 et 4, l'<b>observation</b> se fait sous lumière blanche ou UV selon le pénétrant."},
+
+{c:'c3',t:'label',d:2,i:'scans-etiquettes',
+ q:"<b>Identifie les trois modes d'affichage</b> des ultrasons (diapo 48). Aide-toi des axes.",
+ sp:[{x:17.4,y:14.0,a:"A-Scan"},{x:48.6,y:14.0,a:"B-Scan"},{x:83.7,y:9.1,a:"C-Scan"}],
+ w:["D-Scan","Plan d'impédance"],
+ e:"Lis les <b>axes</b>, ils donnent la réponse à chaque fois : <b>Amplitude / Distance (Depth)</b> → <b>A-Scan</b>, une simple courbe le long d'un tir. <b>Distance / Lateral Position</b> → <b>B-Scan</b>, une <b>coupe</b> de la pièce obtenue en déplaçant la sonde sur une ligne. Pas d'axes mais un <b>balayage en X-Y</b> et une image vue de dessus → <b>C-Scan</b>, la cartographie. Mnémo : <b>A</b>mplitude · <b>B</b> comme coupe verticale · <b>C</b>artographie."},
+
+{c:'c3',t:'label',d:3,i:'capteur-etiquettes',
+ q:"<b>Annote le capteur ultrasons</b> en coupe (diapo 49).",
+ sp:[{x:13.6,y:10.7,a:"Boîtier"},
+     {x:15.2,y:27.9,a:"Résine époxy"},
+     {x:17.2,y:48.8,a:"Matériau amortisseur"},
+     {x:18.6,y:69.8,a:"Électrodes"},
+     {x:22.6,y:83.7,a:"Élément piézoélectrique"},
+     {x:66.4,y:51.6,a:"Connecteur coaxial"},
+     {x:62.8,y:62.8,a:"Fil de signal"},
+     {x:58.7,y:71.2,a:"Fil de masse"},
+     {x:55.2,y:86.5,a:"Semelle d'usure"}],
+ w:["Couplant","Bobine encerclante"],
+ e:"Repère les couleurs : l'<b>élément piézoélectrique</b> (bleu, tout en bas) convertit l'énergie électrique en vibration mécanique et inversement ; il est pris entre deux <b>électrodes</b> (jaunes) ; au-dessus, le <b>matériau amortisseur</b> (rouge, le « backing ») raccourcit l'impulsion pour améliorer la résolution ; en dessous, la <b>semelle d'usure</b> protège et adapte l'impédance. Les deux intrus : le <b>couplant</b> est le gel appliqué <i>entre</i> la sonde et la pièce, il ne fait pas partie du capteur ; la <b>bobine encerclante</b> appartient à la magnétoscopie."},
+
+{c:'c3',t:'label',d:2,i:'snell-etiquettes',
+ q:"<b>Annote le schéma de la transmission entre deux milieux</b> (loi de Snell, diapo 42).",
+ sp:[{x:9.5,y:7.0,a:"Onde incidente"},
+     {x:66.8,y:7.5,a:"Ondes de réflexion"},
+     {x:66.6,y:42.2,a:"Milieu 1"},
+     {x:82.4,y:53.3,a:"Interface"},
+     {x:11.0,y:63.6,a:"Milieu 2"},
+     {x:71.5,y:92.8,a:"Ondes réfractées"}],
+ w:["Onde de surface (Rayleigh)","Normale à l'interface"],
+ e:"Une <b>seule</b> onde incidente (en rouge, OL) produit à la fois des ondes <b>réfléchies</b> qui repartent dans le milieu 1 et des ondes <b>réfractées</b> qui passent dans le milieu 2 — et chacune existe en version <b>OL</b> et <b>OT</b> : c'est la <b>conversion de mode</b>. Les angles α₁ à α₅ sont tous liés par <b>sin α / V = constante</b> (loi de Snell). Pour l'interface eau/acier, retiens les deux angles limites : <b>18°</b> (onde incidente OL) et <b>28°</b> (onde incidente OT)."},
+
+{c:'c5',t:'label',d:3,i:'conductivite-etiquettes',
+ q:"<b>Replace les matériaux</b> sur le plan d'impédance normé (diapo 71). La conductivité croît en descendant vers la droite.",
+ sp:[{x:30.9,y:5.0,a:"Titane"},
+     {x:58.8,y:13.8,a:"Acier fortement allié (inoxydable)"},
+     {x:42.1,y:21.9,a:"Plomb"},
+     {x:49.7,y:68.0,a:"Aluminium et alliages"},
+     {x:25.9,y:74.3,a:"Laiton"},
+     {x:19.9,y:79.1,a:"Cuivre"}],
+ w:["Acier doux ferromagnétique","Verre"],
+ e:"Ordre de <b>conductivité croissante</b> à connaître : <b>titane → acier fortement allié (inoxydable) → plomb → aluminium et alliages → laiton → cuivre</b>. Sur cette courbe la perméabilité relative vaut <b>µ<sub>r</sub> = 1</b> : ce sont tous des matériaux « <b>amagnétiques</b> », ce qui permet de n'attribuer les écarts qu'à la <b>conductivité σ</b>. Les intrus : un <b>acier doux ferromagnétique</b> ne serait pas sur cette courbe (µ<sub>r</sub> ≫ 1, son point part <i>vers le haut</i>) et le <b>verre</b>, isolant, ne donne aucun courant induit."}
 
 ];

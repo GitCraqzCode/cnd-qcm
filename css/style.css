@@ -397,3 +397,17 @@ ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:21
 footer{text-align:center;color:var(--txt3);font-size:.72rem;padding:28px 16px 12px;line-height:1.7}
 
 @media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}}
+
+/* ── Plan de révision ───────────────────────────────────── */
+.pstep{display:flex;align-items:center;gap:11px;padding:11px 0;border-top:1px solid var(--line)}
+.pstep .pchk{width:26px;height:26px;flex:none;border-radius:8px;border:1.5px solid var(--line);
+  background:var(--surf2);display:grid;place-items:center;font-size:.8rem;font-weight:800;transition:.16s}
+.pstep .pchk:hover{border-color:var(--line2)}
+.pstep .pchk.on{background:var(--ok);border-color:var(--ok);color:#03150e}
+.pstep .ptxt{flex:1;min-width:0}
+.pstep .ptxt b{display:block;font-size:.87rem;font-weight:600;line-height:1.35}
+.pstep .ptxt small{color:var(--txt3);font-size:.7rem;font-family:var(--fm)}
+.pstep .pgo{flex:none;font-size:.76rem;font-weight:700;padding:7px 12px;border-radius:10px;
+  background:var(--surf2);border:1px solid var(--line);transition:.16s;white-space:nowrap}
+.pstep .pgo:hover{background:var(--acc2);color:#fff;border-color:var(--acc2)}
+#btnSkip{flex:1;min-width:0}
