@@ -880,6 +880,10 @@ document.addEventListener('keydown', e=>{
 
 /* ── Démarrage ─────────────────────────────────────────── */
 document.documentElement.dataset.theme = S.theme;
+if(typeof OWNER==='string' && OWNER){
+  const g=$('#greet'); if(g) g.innerHTML='👋 Salut '+esc(OWNER)+' — ta révision CND';
+  document.title='Quiz CND — '+OWNER;
+}
 // remise à zéro de la série quotidienne si un jour a été sauté
 (function(){ if(S.day.last){ const y=new Date(Date.now()-864e5).toISOString().slice(0,10);
   if(S.day.last!==today() && S.day.last!==y) S.day.streak=0; } })();

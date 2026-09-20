@@ -111,6 +111,8 @@ nav button.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,trans
 }
 .hero::after{content:'';position:absolute;inset:auto -40px -70px auto;width:220px;height:220px;border-radius:50%;
   background:radial-gradient(circle,rgba(129,140,248,.30),transparent 70%);pointer-events:none}
+.greet{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--acc);margin-bottom:7px;position:relative}
 .hero h1{font-size:1.5rem;letter-spacing:-.025em;margin-bottom:6px}
 .hero p{color:var(--txt2);font-size:.92rem;margin:0}
 .hero .kpis{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap;position:relative}
