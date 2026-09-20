@@ -290,6 +290,39 @@ c6: [
 ],
 
 c7: [
+ {t:"Avantages et inconvénients, méthode par méthode", h:`
+  <div class="box"><h5>💧 Ressuage</h5>
+   <p><b>Principe :</b> capillarité. <b>Détecte :</b> défauts débouchants uniquement. <b>Matériaux :</b> tous (métaux, composites), sous réserve de compatibilité chimique.</p>
+   <p><b>✅ Avantages</b> — simplicité, faible coût, aucune contrainte sur la nature du matériau, tous produits à surface accessible même de forme complexe, mise en œuvre possible en aérosols sur chantier.</p>
+   <p><b>❌ Inconvénients</b> — défauts <b>débouchants seulement</b>, faible productivité (tout est manuel, deux temps d'attente), <b>peu quantitatif</b> (pas de profondeur, indication élargie), préparation de surface déterminante, consommables.</p></div>
+
+  <div class="box" style="margin-top:9px"><h5>🧲 Magnétoscopie</h5>
+   <p><b>Principe :</b> accumulation de poudre sur le champ de fuite. <b>Détecte :</b> défauts fins débouchants <b>et sous-cutanés</b>. <b>Matériaux :</b> ferromagnétiques (aciers).</p>
+   <p><b>✅ Avantages</b> — grande <b>sensibilité</b>, voit le <b>sous-cutané</b> (contrairement au ressuage), rapide, peu coûteuse, portative.</p>
+   <p><b>❌ Inconvénients</b> — <b>réservée aux aciers</b>, peu quantitative, dépend de l'<b>orientation</b> du défaut (deux aimantations croisées obligatoires), impose une <b>démagnétisation</b> après contrôle.</p></div>
+
+  <div class="box" style="margin-top:9px"><h5>📡 Ultrasons</h5>
+   <p><b>Principe :</b> perturbation d'une onde, échographie. <b>Détecte :</b> défauts <b>internes</b> et débouchants. <b>Matériaux :</b> la majorité.</p>
+   <p><b>✅ Avantages</b> — <b>grande sensibilité</b>, nombreuses méthodes d'auscultation, seule méthode du cours à donner la <b>profondeur</b> (2d = V·t) et une <b>coupe</b> (B-Scan) ou une cartographie (C-Scan), accès à une seule face en réflexion.</p>
+   <p><b>❌ Inconvénients</b> — <b>couplage</b> obligatoire, <b>interprétation des échos</b> délicate, conditions d'essai exigeantes, très sensible à l'<b>orientation</b> du défaut plan et à la <b>taille de grain</b> (diffusion α ∝ d³f⁴).</p></div>
+
+  <div class="box" style="margin-top:9px"><h5>⚡ Courants de Foucault</h5>
+   <p><b>Principe :</b> perturbation d'un courant induit. <b>Détecte :</b> défauts fins débouchants. <b>Matériaux :</b> conducteurs.</p>
+   <p><b>✅ Avantages</b> — <b>sensibilité</b> et <b>automatisation</b>, contrôle en ligne à grande cadence, pas de couplant ni de consommable, résultat immédiat, fonctionne à travers une fine couche isolante.</p>
+   <p><b>❌ Inconvénients</b> — inopérants sur les <b>non-conducteurs</b>, <b>interprétation</b> du plan d'impédance, profondeur limitée par l'<b>effet de peau</b> (δ = 1/√(πfσµ)), sensibles au <b>lift-off</b> et aux variations de perméabilité des aciers.</p></div>
+
+  <div class="box" style="margin-top:9px"><h5>🌡️ Thermographie infrarouge</h5>
+   <p><b>Principe :</b> cartographie de perturbations thermiques. <b>Détecte :</b> délaminations, hétérogénéités diverses. <b>Matériaux :</b> tous.</p>
+   <p><b>✅ Avantages</b> — <b>cartographie</b> d'une grande surface d'un seul coup, totalement <b>sans contact</b>, à distance, sur installation <b>en fonctionnement</b>, contrôle sur site.</p>
+   <p><b>❌ Inconvénients</b> — <b>caractérisation</b> des défauts difficile, mesure très dépendante de l'<b>émissivité</b> (métal poli ε ≈ 0,04 = miroir IR), rayonnement mesuré = objet + réfléchi + atmosphérique, taille minimale d'objet croissant avec la distance (<b>SSR</b>).</p></div>
+
+  <div class="box" style="margin-top:9px"><h5>☢️ Rayonnements ionisants (radiographie X / γ, tomographie)</h5>
+   <p><b>Principe :</b> atténuation d'un flux. <b>Détecte :</b> défauts <b>internes volumiques</b>. <b>Matériaux :</b> tous.</p>
+   <p><b>✅ Avantages</b> — cartographie, souplesse de réglage, <b>fortes épaisseurs</b> (γ), imagerie en coupe (tomographie), document d'archive.</p>
+   <p><b>❌ Inconvénients</b> — <b>protection</b> radiologique lourde, <b>détection médiocre des fissures</b> fines mal orientées, pas d'information de profondeur, résolution limitée en radioscopie, coût et productivité pour la tomographie.</p></div>
+
+  <p class="tip">Chaque inconvénient découle du <b>principe physique</b> : pas de capillarité sans ouverture · pas de flux de fuite sans ferromagnétisme · pas d'onde sans couplage · pas de courant induit sans conducteur · pas de mesure IR sans émissivité connue · pas de contraste radio sans variation d'épaisseur traversée.</p>`},
+
  {t:"Méthode de choix — le réflexe d'examen", h:`
   <ol class="steps"><li><b>Matériau ?</b> Ferromagnétique → magnétoscopie possible. Conducteur → courants de Foucault possibles. Isolant → ni l'un ni l'autre.</li>
   <li><b>Où est le défaut ?</b> Débouchant → ressuage, visuel. Sous-cutané → magnétoscopie. Interne → ultrasons, radiographie.</li>

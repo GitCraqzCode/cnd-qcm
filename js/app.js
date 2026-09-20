@@ -307,19 +307,19 @@ function renderQ(){
   $('#qCount').textContent=(SES.i+1)+'/'+SES.list.length;
   const ch=CH[q.c];
   const card=$('#qCard'); card.innerHTML='';
-  CUR={q, answered:false, sel:null, multi:new Set(), pairs:{}, active:null, order:null, map:null};
+  CUR={q, answered:false, sel:null, multi:new Set(), pairs:{}, active:null, order:null, map:null, place:{}, wact:null};
 
   card.appendChild(el('div','qmeta',
     `<span class="pill" style="color:${ch.col}">${ch.ic} ${ch.n}. ${esc(ch.short)}</span>
      <span class="pill d${q.d}">${'⭐'.repeat(q.d)}</span>
-     <span class="pill">${({qcm:'Choix unique',multi:'Choix multiples',vf:'Vrai / Faux',match:'Associations',order:'Remise en ordre'})[q.t]}</span>`));
+     <span class="pill">${({qcm:'Choix unique',multi:'Choix multiples',vf:'Vrai / Faux',match:'Associations',order:'Remise en ordre',label:'Placer les mots'})[q.t]}</span>`));
   card.appendChild(el('div','qtext', q.q));
-  if(q.i){
+  if(q.i && q.t!=='label'){
     const w=el('div','qimg',`<img src="assets/img/${q.i}.jpg" alt="Schéma du cours" loading="lazy">`);
     w.onclick=()=>openLB('assets/img/'+q.i+'.jpg');
     card.appendChild(w);
   }
-  ({qcm:rQcm, vf:rVf, multi:rMulti, match:rMatch, order:rOrder})[q.t](card,q);
+  ({qcm:rQcm, vf:rVf, multi:rMulti, match:rMatch, order:rOrder, label:rLabel})[q.t](card,q);
   card.appendChild(el('div','btnrow',''));
   const row=card.querySelector('.btnrow');
   const bv=el('button','btn full','Valider'); bv.id='btnVal'; bv.disabled = q.t!=='order'; bv.onclick=validate;
@@ -431,6 +431,58 @@ function drawOrder(){
   box.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{ const k=+b.dataset.d; const a=CUR.order; if(k<a.length-1){ [a[k+1],a[k]]=[a[k],a[k+1]]; sndClick(); drawOrder(); }});
 }
 
+function rLabel(card,q){
+  card.appendChild(el('p','','<small style="color:var(--txt3)">Touche une étiquette, puis la pastille correspondante sur le schéma.</small>'));
+  const box=el('div','lbimg');
+  const inner=el('div','lbinner',`<img src="assets/img/${q.i}.jpg" alt="Schéma à annoter">`);
+  q.sp.forEach((s,k)=>{
+    const p=el('button','pin', String(k+1));
+    p.style.left=s.x+'%'; p.style.top=s.y+'%'; p.dataset.p=k;
+    p.onclick=()=>placePin(k);
+    inner.appendChild(p);
+  });
+  box.appendChild(inner); card.appendChild(box);
+  card.appendChild(el('div','lbhint','↔ fais glisser le schéma pour le parcourir'));
+  const words=shuffle(q.sp.map(s=>s.a).concat(q.w||[]));
+  CUR.words=words;
+  const wb=el('div','words');
+  words.forEach((w,wi)=>{
+    const b=el('button','word', `<span class="pn" style="display:none"></span><span>${w}</span>`);
+    b.dataset.w=wi; b.onclick=()=>pickWord(wi);
+    wb.appendChild(b);
+  });
+  card.appendChild(wb);
+}
+function pickWord(wi){
+  if(CUR.answered) return; sndClick();
+  const placed=Object.keys(CUR.place).find(k=>CUR.place[k]===wi);
+  if(placed!==undefined){ delete CUR.place[placed]; CUR.wact=null; }
+  else CUR.wact = CUR.wact===wi? null : wi;
+  drawLabel();
+}
+function placePin(k){
+  if(CUR.answered) return; sndClick();
+  if(CUR.place[k]!==undefined){ delete CUR.place[k]; drawLabel(); return; }
+  if(CUR.wact===null) return;
+  CUR.place[k]=CUR.wact; CUR.wact=null; drawLabel();
+}
+function drawLabel(){
+  const q=CUR.q;
+  $$('#qCard .pin').forEach(p=>{
+    const k=+p.dataset.p, has=CUR.place[k]!==undefined;
+    p.classList.toggle('filled', has);
+    p.classList.toggle('target', !has && CUR.wact!==null);
+  });
+  $$('#qCard .word').forEach(b=>{
+    const wi=+b.dataset.w, k=Object.keys(CUR.place).find(x=>CUR.place[x]===wi);
+    b.classList.toggle('active', CUR.wact===wi);
+    b.classList.toggle('placed', k!==undefined);
+    const pn=b.querySelector('.pn');
+    if(k!==undefined){ pn.style.display=''; pn.textContent=(+k)+1; } else pn.style.display='none';
+  });
+  $('#btnVal').disabled = Object.keys(CUR.place).length < q.sp.length;
+}
+
 /* ── Validation ────────────────────────────────────────── */
 function isCorrect(){
   const q=CUR.q;
@@ -438,6 +490,7 @@ function isCorrect(){
   if(q.t==='multi'){ const a=new Set(q.a); return a.size===CUR.multi.size && [...a].every(x=>CUR.multi.has(x)); }
   if(q.t==='match') return q.p.every((_,i)=>CUR.pairs[i]===i);
   if(q.t==='order') return CUR.order.every((oi,k)=>oi===k);
+  if(q.t==='label') return q.sp.every((s,k)=>CUR.words[CUR.place[k]]===s.a);
   return false;
 }
 function validate(){
@@ -485,6 +538,18 @@ function validate(){
         if(CUR.pairs[i]!==i) b.querySelector('span:last-child').innerHTML += ' <small style="opacity:.75">→ '+q.p[i][1]+'</small>';
       }
     });
+  } else if(q.t==='label'){
+    const key=el('div','lbkey');
+    q.sp.forEach((s,k)=>{
+      const mine=CUR.words[CUR.place[k]], ok=mine===s.a;
+      const p=card.querySelector('.pin[data-p="'+k+'"]');
+      p.classList.remove('filled','target'); p.classList.add(ok?'good':'wrong');
+      key.appendChild(el('div', ok?'ok2':'ko2',
+        `<span class="pn">${k+1}</span><span>${ok?'':'<s style="opacity:.6">'+esc(mine)+'</s> → '}<b>${esc(s.a)}</b></span>`));
+    });
+    card.querySelector('.words').style.display='none';
+    card.querySelector('.lbhint').after(key);
+    card.querySelectorAll('.word').forEach(b=>b.disabled=true);
   } else if(q.t==='order'){
     card.querySelectorAll('.oitem').forEach((it,k)=>{
       const oi=+it.dataset.o;
@@ -565,6 +630,7 @@ function goodAnswerHTML(q){
   if(q.t==='multi') return '<b style="color:var(--ok)">Réponses : </b>'+q.a.map(i=>q.o[i]).join(' · ');
   if(q.t==='match') return '<b style="color:var(--ok)">Associations : </b><br>'+q.p.map(p=>'• '+p[0]+' → '+p[1]).join('<br>');
   if(q.t==='order') return '<b style="color:var(--ok)">Ordre correct : </b><br>'+q.s.map((s,i)=>(i+1)+'. '+s).join('<br>');
+  if(q.t==='label') return '<b style="color:var(--ok)">Légendes : </b><br>'+q.sp.map((s,i)=>(i+1)+'. '+s.a).join('<br>');
   return '';
 }
 

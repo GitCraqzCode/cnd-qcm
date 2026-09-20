@@ -224,6 +224,41 @@ nav button.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,trans
 .mitem.wrong{border-color:var(--badline);background:var(--badbg)}
 .mitem.wrong .num{background:var(--bad);color:#2a0710;border-color:var(--bad)}
 
+/* placement d'étiquettes sur schéma */
+.lbimg{border-radius:14px;overflow-x:auto;overflow-y:hidden;border:1px solid var(--line);background:#fff;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.lbinner{position:relative;min-width:620px}
+.lbimg img{width:100%;display:block}
+.lbhint{font-size:.7rem;color:var(--txt3);margin:-6px 0 12px;text-align:center}
+@media(min-width:680px){.lbhint{display:none}}
+.pin{
+  position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;
+  display:grid;place-items:center;font-family:var(--fm);font-size:.76rem;font-weight:800;
+  background:#1e2a4a;color:#fff;border:2.5px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.45);
+  transition:.15s;cursor:pointer;z-index:2;
+}
+.pin:hover{transform:translate(-50%,-50%) scale(1.14)}
+.pin.filled{background:var(--acc2)}
+.pin.target{animation:ping 1.1s infinite}
+@keyframes ping{0%,100%{box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 0 rgba(129,140,248,.7)}50%{box-shadow:0 2px 8px rgba(0,0,0,.45),0 0 0 9px rgba(129,140,248,0)}}
+.pin.good{background:var(--ok);color:#03150e}
+.pin.wrong{background:var(--bad);color:#2a0710}
+.words{display:flex;flex-wrap:wrap;gap:8px}
+.word{
+  background:var(--surf2);border:1.5px solid var(--line);border-radius:11px;padding:9px 13px;
+  font-size:.86rem;font-weight:600;transition:.15s;display:flex;align-items:center;gap:7px;
+}
+.word:hover:not(:disabled){border-color:var(--line2)}
+.word.active{border-color:var(--acc2);background:color-mix(in srgb,var(--acc2) 15%,var(--surf2));box-shadow:0 0 0 3px color-mix(in srgb,var(--acc2) 20%,transparent)}
+.word.placed{opacity:.65}
+.word .pn{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-family:var(--fm);
+  font-size:.66rem;font-weight:800;background:var(--acc2);color:#fff;flex:none}
+.lbkey{margin-top:11px;display:grid;gap:5px}
+.lbkey div{display:flex;gap:8px;align-items:center;font-size:.83rem}
+.lbkey .pn{width:21px;height:21px;border-radius:50%;display:grid;place-items:center;font-family:var(--fm);
+  font-size:.66rem;font-weight:800;flex:none;background:var(--surf3);border:1px solid var(--line)}
+.lbkey .ok2 .pn{background:var(--ok);color:#03150e;border-color:var(--ok)}
+.lbkey .ko2 .pn{background:var(--bad);color:#2a0710;border-color:var(--bad)}
+
 /* remise en ordre */
 .order{display:grid;gap:8px}
 .oitem{

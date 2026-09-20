@@ -6,27 +6,29 @@ Maintenance, Université de Toulouse 2), 102 diapositives.
 
 ## Ce qu'elle contient
 
-- **276 questions** couvrant l'intégralité du cours, chacune avec une **explication détaillée**
-- **70 schémas** extraits des diapositives (tableaux méthodes/défauts, A/B/C-Scan, plan
+- **308 questions** couvrant l'intégralité du cours, chacune avec une **explication détaillée**
+- **71 schémas** extraits des diapositives (tableaux méthodes/défauts, A/B/C-Scan, plan
   d'impédance, procédure de ressuage, courbes d'émissivité…)
-- **Fiches de cours** complètes, chapitre par chapitre : définitions, tableaux, formules
+- **Fiches de cours** complètes, chapitre par chapitre : définitions, tableaux, formules,
+  et une fiche **avantages / inconvénients méthode par méthode**
 
 ### Les 7 chapitres
 
 | # | Chapitre | Questions |
 |---|----------|-----------|
-| 1 | Introduction & défauts | 51 |
-| 2 | Ressuage | 31 |
-| 3 | Ultrasons | 49 |
-| 4 | Magnétoscopie | 37 |
-| 5 | Courants de Foucault | 31 |
-| 6 | Thermographie infrarouge | 46 |
-| 7 | Synthèse & comparaison | 31 |
+| 1 | Introduction & défauts | 55 |
+| 2 | Ressuage | 33 |
+| 3 | Ultrasons | 51 |
+| 4 | Magnétoscopie | 40 |
+| 5 | Courants de Foucault | 33 |
+| 6 | Thermographie infrarouge | 48 |
+| 7 | Synthèse & comparaison | 48 |
 
 ### Types de questions
 
 Choix unique · choix multiples · vrai/faux · **associations** (relier défaut ↔ origine,
-méthode ↔ principe) · **remise en ordre** (procédures) · questions sur les **schémas** du cours
+méthode ↔ principe) · **remise en ordre** (procédures) · **placement d'étiquettes sur un
+schéma** (annoter la figure des défauts de soudure) · questions sur les **schémas** du cours
 · reconnaissance de **formules** (identifier la bonne relation, ce que représente chaque
 symbole, comment varie une grandeur).
 
@@ -56,7 +58,7 @@ Interface responsive (téléphone et ordinateur), thème sombre et thème clair.
 ```
 index.html          interface
 css/style.css       thème sombre / clair
-js/questions.js     les 276 questions
+js/questions.js     les 308 questions
 js/course.js        les fiches de cours
 js/app.js           moteur (sessions, XP, répétition espacée, stats)
 assets/img/         70 schémas extraits du PDF du cours
